@@ -8,9 +8,12 @@
 				template : '<div class="move-list-item" style="width:{{wd}};">'+
 						   		'<div class="lft">'+
 						   			'<div class="inner box">'+
+						   				'<p ng-if="mlist.length > 0">'+
+						   					'<a ng-click="self.moveAllRight()" href="javascript:;">Select All</a>'+
+						   				'</p>'+
 						   				'<ul>'+
 						   					'<li ng-repeat="obj in mlist">'+
-						   						'<a ng-click="self.moveRight($index)" href="javascript:;">{{obj.title}}</a>'+
+						   						'<a ng-click="self.moveRight($index)" href="javascript:;">{{obj[valueFormat]}}</a>'+
 						   					'</li>'+
 						   				'</ul>'+
 						   			'</div>'+
@@ -22,10 +25,13 @@
 						   		'</div>'+
 						   		'<div class="rht">'+
 						   			'<div class="inner box">'+
+						   				'<p ng-if="rlist.length > 0">'+
+						   					'<a ng-click="self.removeAllRight()" href="javascript:;">Remove All</a>'+
+						   				'</p>'+
 						   				'<ul>'+
 						   					'<li ng-repeat="obj in rlist">'+
 						   						'<a ng-click="self.removeRight($index)" href="javascript:;">'+
-						   							'{{obj.title}}'+
+						   							'{{obj[valueFormat]}}'+
 						   							'<span class="fa fa-close"></span>'+
 						   						'</a>'+
 						   					'</li>'+
@@ -40,14 +46,28 @@
 					rlist : '=rlist'
 				},
 				link : function(scope, element, attrs){
+					console.log(attrs);
 					scope.wd = angular.isNumber(scope.width) ? scope.width + 'px' : scope.width;
+					scope.keyFormat = attrs.kFormat;
+					scope.valueFormat = attrs.vFormat;
 				},
 				controller : function($scope){
 					var self = this;
 
+					self.moveAllRight = function(){
+						angular.forEach($scope.mlist, function(value, key){
+							if(!checkItem($scope.rlist, value[$scope.keyFormat]))
+								$scope.rlist.push(value);
+						});
+					};
+
 					self.moveRight = function(index){
-						if(!checkItem($scope.rlist, $scope.mlist[index].id))
+						if(!checkItem($scope.rlist, $scope.mlist[index][$scope.keyFormat]))
 							$scope.rlist.push($scope.mlist[index]);
+					};
+
+					self.removeAllRight = function(){
+						$scope.rlist = [];
 					};
 
 					self.removeRight = function(index){
@@ -58,7 +78,7 @@
 						var chkBln = false;
 
 						angular.forEach(list, function(value, key){
-							if(value.id == id){
+							if(value[$scope.keyFormat] == id){
 								chkBln = true;
 							}
 						});

@@ -15,6 +15,6 @@
 		{{rightlist}}
 		<br/>
 		<br/>
-		<move-list-item width="500" mlist="mainlist" rlist="rightlist"></move-list-item>
+		<move-list-item width="500" mlist="mainlist" rlist="rightlist" k-format="id" v-format="title"></move-list-item>
 	</body>
 </html>
