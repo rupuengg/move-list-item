@@ -16,6 +16,9 @@
 						   						'<a ng-click="self.moveRight($index)" href="javascript:;">{{obj[valueFormat]}}</a>'+
 						   					'</li>'+
 						   				'</ul>'+
+						   				'<p ng-if="mlist.length == 0" class="no-item">'+
+						   					'No items'+
+						   				'</p>'+
 						   			'</div>'+
 						   		'</div>'+
 						   		'<div class="cntr">'+
@@ -36,6 +39,9 @@
 						   						'</a>'+
 						   					'</li>'+
 						   				'</ul>'+
+						   				'<p ng-if="rlist.length == 0" class="no-item">'+
+						   					'No items'+
+						   				'</p>'+
 						   			'</div>'+
 						   		'</div>'+
 						   		'<div class="clear"></div>'+
@@ -46,44 +52,71 @@
 					rlist : '=rlist'
 				},
 				link : function(scope, element, attrs){
-					console.log(attrs);
 					scope.wd = angular.isNumber(scope.width) ? scope.width + 'px' : scope.width;
 					scope.keyFormat = attrs.kFormat;
 					scope.valueFormat = attrs.vFormat;
+					scope.isReverse = attrs.isReverse ? (attrs.isReverse == 'true' ? true : false) : false;
 				},
 				controller : function($scope){
 					var self = this;
 
+					self.mlst = angular.copy($scope.mlist);
+
 					self.moveAllRight = function(){
 						angular.forEach($scope.mlist, function(value, key){
-							if(!checkItem($scope.rlist, value[$scope.keyFormat]))
+							if(checkItem($scope.rlist, value[$scope.keyFormat]) < 0)
 								$scope.rlist.push(value);
+
 						});
+						if($scope.isReverse)
+							$scope.mlist = [];
 					};
 
 					self.moveRight = function(index){
-						if(!checkItem($scope.rlist, $scope.mlist[index][$scope.keyFormat]))
+						if(checkItem($scope.rlist, $scope.mlist[index][$scope.keyFormat]) < 0)
 							$scope.rlist.push($scope.mlist[index]);
+
+						if($scope.isReverse)
+							$scope.mlist.splice(index, 1);
 					};
 
 					self.removeAllRight = function(){
 						$scope.rlist = [];
+
+						if($scope.isReverse)
+							$scope.mlist = returnOrderArray($scope.rlist);
 					};
 
 					self.removeRight = function(index){
 						$scope.rlist.splice(index, 1);
+
+						if($scope.isReverse)
+							$scope.mlist = returnOrderArray($scope.rlist);
 					};
 
 					function checkItem(list, id){
-						var chkBln = false;
+						var chkBln = -1;
 
 						angular.forEach(list, function(value, key){
 							if(value[$scope.keyFormat] == id){
-								chkBln = true;
+								chkBln = key;
 							}
 						});
 
 						return chkBln;
+					}
+
+					function returnOrderArray(child){
+						var parent = angular.copy(self.mlst);
+						angular.forEach(child, function(val, k){
+							var p = checkItem(parent, val[$scope.keyFormat]);
+							if(p >= 0){
+								console.log(parent, val[$scope.keyFormat], checkItem(parent, val[$scope.keyFormat]));
+								parent.splice(p, 1);
+							}
+						});
+
+						return parent;
 					}
 				},
 				controllerAs : 'self'
