@@ -64,8 +64,11 @@
 
 					self.moveAllRight = function(){
 						angular.forEach($scope.mlist, function(value, key){
-							if(checkItem($scope.rlist, value[$scope.keyFormat]) < 0)
+							if(checkItem($scope.rlist, value[$scope.keyFormat]) < 0){
+								var tmp = angular.copy(value);
+								tmp.rPos = $scope.rlist.length + 1;
 								$scope.rlist.push(value);
+							}
 
 						});
 						if($scope.isReverse)
@@ -73,8 +76,11 @@
 					};
 
 					self.moveRight = function(index){
-						if(checkItem($scope.rlist, $scope.mlist[index][$scope.keyFormat]) < 0)
-							$scope.rlist.push($scope.mlist[index]);
+						if(checkItem($scope.rlist, $scope.mlist[index][$scope.keyFormat]) < 0){
+							var tmp = $scope.mlist[index];
+							tmp.rPos = $scope.rlist.length + 1;
+							$scope.rlist.push(tmp);
+						}
 
 						if($scope.isReverse)
 							$scope.mlist.splice(index, 1);
@@ -88,6 +94,10 @@
 					};
 
 					self.removeRight = function(index){
+						for(var i=index;i<$scope.rlist.length;i++){
+							$scope.rlist[i].rPos = $scope.rlist[i].rPos - 1;
+						}
+
 						$scope.rlist.splice(index, 1);
 
 						if($scope.isReverse)
